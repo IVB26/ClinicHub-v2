@@ -60,29 +60,29 @@ export async function apiCall<T = unknown>(
 // Auth endpoints
 export const authAPI = {
   login: (username: string, password: string): Promise<AuthResponse> =>
-    apiCall('/api/auth/login', {
+    apiCall<AuthResponse>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     }),
-  logout: (): Promise<unknown> => apiCall('/api/auth/logout', { method: 'POST' }),
+  logout: (): Promise<unknown> => apiCall<unknown>('/api/auth/logout', { method: 'POST' }),
 };
 
 // Policies endpoints
 export const policiesAPI = {
-  getAll: (): Promise<Policy[]> => apiCall('/api/policies'),
-  getOne: (id: string): Promise<Policy> => apiCall(`/api/policies/${id}`),
+  getAll: (): Promise<Policy[]> => apiCall<Policy[]>('/api/policies'),
+  getOne: (id: string): Promise<Policy> => apiCall<Policy>(`/api/policies/${id}`),
   create: (data: Record<string, unknown>): Promise<Policy> =>
-    apiCall('/api/policies', {
+    apiCall<Policy>('/api/policies', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   update: (id: string, data: Record<string, unknown>): Promise<Policy> =>
-    apiCall(`/api/policies/${id}`, {
+    apiCall<Policy>(`/api/policies/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
   delete: (id: string): Promise<unknown> =>
-    apiCall(`/api/policies/${id}`, { method: 'DELETE' }),
+    apiCall<unknown>(`/api/policies/${id}`, { method: 'DELETE' }),
 };
 
 // Boarding endpoints
@@ -141,67 +141,67 @@ export const tabsAPI = {
 // Protocols endpoints
 export const protocolsAPI = {
   categories: {
-    getAll: (): Promise<ProtocolCategory[]> => apiCall('/api/protocols/categories'),
+    getAll: (): Promise<ProtocolCategory[]> => apiCall<ProtocolCategory[]>('/api/protocols/categories'),
     create: (data: Record<string, unknown>): Promise<ProtocolCategory> =>
-      apiCall('/api/protocols/categories', {
+      apiCall<ProtocolCategory>('/api/protocols/categories', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
     update: (id: number, data: Record<string, unknown>): Promise<ProtocolCategory> =>
-      apiCall(`/api/protocols/categories/${id}`, {
+      apiCall<ProtocolCategory>(`/api/protocols/categories/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       }),
     delete: (id: number): Promise<unknown> =>
-      apiCall(`/api/protocols/categories/${id}`, { method: 'DELETE' }),
+      apiCall<unknown>(`/api/protocols/categories/${id}`, { method: 'DELETE' }),
   },
   items: {
     getByCategory: (categoryId: number): Promise<ProtocolItem[]> =>
-      apiCall(`/api/protocols/categories/${categoryId}/items`),
-    getOne: (id: number): Promise<ProtocolItem> => apiCall(`/api/protocols/items/${id}`),
+      apiCall<ProtocolItem[]>(`/api/protocols/categories/${categoryId}/items`),
+    getOne: (id: number): Promise<ProtocolItem> => apiCall<ProtocolItem>(`/api/protocols/items/${id}`),
     create: (data: Record<string, unknown>): Promise<ProtocolItem> =>
-      apiCall('/api/protocols/items', {
+      apiCall<ProtocolItem>('/api/protocols/items', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
     update: (id: number, data: Record<string, unknown>): Promise<ProtocolItem> =>
-      apiCall(`/api/protocols/items/${id}`, {
+      apiCall<ProtocolItem>(`/api/protocols/items/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       }),
     delete: (id: number): Promise<unknown> =>
-      apiCall(`/api/protocols/items/${id}`, { method: 'DELETE' }),
+      apiCall<unknown>(`/api/protocols/items/${id}`, { method: 'DELETE' }),
   },
   blocks: {
     create: (data: Record<string, unknown>): Promise<ProtocolBlock> =>
-      apiCall('/api/protocols/blocks', {
+      apiCall<ProtocolBlock>('/api/protocols/blocks', {
         method: 'POST',
         body: JSON.stringify(data),
       }),
     update: (id: number, data: Record<string, unknown>): Promise<ProtocolBlock> =>
-      apiCall(`/api/protocols/blocks/${id}`, {
+      apiCall<ProtocolBlock>(`/api/protocols/blocks/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
       }),
     delete: (id: number): Promise<unknown> =>
-      apiCall(`/api/protocols/blocks/${id}`, { method: 'DELETE' }),
+      apiCall<unknown>(`/api/protocols/blocks/${id}`, { method: 'DELETE' }),
   },
 };
 
 // Boarding Procedures endpoints
 export const boardingProceduresAPI = {
-  getAll: (): Promise<BoardingProcedure[]> => apiCall('/api/boarding-procedures'),
-  getOne: (id: number): Promise<BoardingProcedure> => apiCall(`/api/boarding-procedures/${id}`),
+  getAll: (): Promise<BoardingProcedure[]> => apiCall<BoardingProcedure[]>('/api/boarding-procedures'),
+  getOne: (id: number): Promise<BoardingProcedure> => apiCall<BoardingProcedure>(`/api/boarding-procedures/${id}`),
   create: (data: Record<string, unknown>): Promise<BoardingProcedure> =>
-    apiCall('/api/boarding-procedures', {
+    apiCall<BoardingProcedure>('/api/boarding-procedures', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
   update: (id: number, data: Record<string, unknown>): Promise<BoardingProcedure> =>
-    apiCall(`/api/boarding-procedures/${id}`, {
+    apiCall<BoardingProcedure>(`/api/boarding-procedures/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
   delete: (id: number): Promise<unknown> =>
-    apiCall(`/api/boarding-procedures/${id}`, { method: 'DELETE' }),
+    apiCall<unknown>(`/api/boarding-procedures/${id}`, { method: 'DELETE' }),
 };
