@@ -91,3 +91,64 @@ export interface CustomTab {
   created_at?: string;
   updated_at?: string;
 }
+
+// Reception / Client Management Types
+export interface Pet {
+  id?: number;
+  name: string;
+  type: string; // Dog, Cat, Bird, etc.
+  breed: string;
+  dateOfBirth?: string;
+  microchip?: string;
+  notes?: string;
+}
+
+export interface Client {
+  id?: number;
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  city?: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  pets: Pet[];
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type AppointmentStatus = 'scheduled' | 'completed' | 'cancelled' | 'no-show';
+export type AppointmentService = 'checkup' | 'vaccination' | 'surgery' | 'grooming' | 'dental' | 'other';
+
+export interface Appointment {
+  id?: number;
+  clientId: number;
+  petId?: number;
+  petName?: string;
+  clientName?: string;
+  dateTime: string;
+  service: AppointmentService;
+  duration?: number; // minutes
+  notes?: string;
+  status: AppointmentStatus;
+  reminderSent?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type CallType = 'incoming' | 'outgoing';
+export type CallOutcome = 'note' | 'appointment' | 'follow-up' | 'question' | 'complaint' | 'other';
+
+export interface CallLog {
+  id?: number;
+  clientId: number;
+  clientName?: string;
+  type: CallType;
+  dateTime: string;
+  duration?: number; // minutes
+  outcome: CallOutcome;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}

@@ -1,4 +1,4 @@
-import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure } from './types';
+import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure, Client, Appointment, CallLog } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://clinichub-backend-1.onrender.com';
 
@@ -226,5 +226,53 @@ export const boardingProceduresAPI = {
     }
 
     return response.json();
+  },
+};
+
+// Reception endpoints
+export const receptionAPI = {
+  clients: {
+    getAll: (): Promise<Client[]> => apiCall<Client[]>('/api/reception/clients'),
+    getOne: (id: number): Promise<Client> => apiCall<Client>(`/api/reception/clients/${id}`),
+    create: (data: Record<string, unknown>): Promise<Client> =>
+      apiCall<Client>('/api/reception/clients', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<Client> =>
+      apiCall<Client>(`/api/reception/clients/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall<unknown>(`/api/reception/clients/${id}`, { method: 'DELETE' }),
+  },
+  appointments: {
+    getAll: (): Promise<Appointment[]> => apiCall<Appointment[]>('/api/reception/appointments'),
+    getByDate: (date: string): Promise<Appointment[]> =>
+      apiCall<Appointment[]>(`/api/reception/appointments?date=${date}`),
+    getOne: (id: number): Promise<Appointment> => apiCall<Appointment>(`/api/reception/appointments/${id}`),
+    create: (data: Record<string, unknown>): Promise<Appointment> =>
+      apiCall<Appointment>('/api/reception/appointments', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<Appointment> =>
+      apiCall<Appointment>(`/api/reception/appointments/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall<unknown>(`/api/reception/appointments/${id}`, { method: 'DELETE' }),
+  },
+  callLog: {
+    getAll: (): Promise<CallLog[]> => apiCall<CallLog[]>('/api/reception/call-log'),
+    getByClient: (clientId: number): Promise<CallLog[]> =>
+      apiCall<CallLog[]>(`/api/reception/call-log?clientId=${clientId}`),
+    create: (data: Record<string, unknown>): Promise<CallLog> =>
+      apiCall<CallLog>('/api/reception/call-log', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
   },
 };
