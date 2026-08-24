@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuthContext } from '@/components/AuthProvider';
 import { policiesAPI } from '@/lib/api';
+import { QuillEditor } from '@/components/QuillEditor';
 import type { Policy } from '@/lib/types';
 
 export default function PoliciesPage() {
@@ -200,7 +201,7 @@ function PolicyFormModal({ policy, onClose, onSave, isReadOnly }: PolicyFormModa
   const [category, setCategory] = useState(policy?.category || '');
   const [overview, setOverview] = useState(policy?.overview || '');
   const [content, setContent] = useState(
-    policy?.content ? JSON.stringify(policy.content, null, 2) : ''
+    typeof policy?.content === 'string' ? policy.content : ''
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -215,14 +216,18 @@ function PolicyFormModal({ policy, onClose, onSave, isReadOnly }: PolicyFormModa
     setIsSubmitting(true);
     try {
       if (policy) {
-        // TODO: Update existing policy
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await policiesAPI.update(policy.id.toString(), {
+          title,
+          category,
+          overview,
+          content,
+        });
       } else {
         await policiesAPI.create({
           title,
           category,
           overview,
-          content: content ? JSON.parse(content) : null,
+          content,
         });
       }
       onSave();
@@ -299,16 +304,20 @@ function PolicyFormModal({ policy, onClose, onSave, isReadOnly }: PolicyFormModa
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content (JSON)
+              Content
             </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={isReadOnly}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-gray-100 font-mono text-sm"
-              placeholder='{"sections": []}'
-              rows={6}
-            />
+            {isReadOnly ? (
+              <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 prose prose-sm max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
+            ) : (
+              <QuillEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Enter policy details, procedures, and guidelines..."
+                height="350px"
+              />
+            )}
           </div>
 
           {!isReadOnly && (
