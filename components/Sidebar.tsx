@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { tabsAPI } from '@/lib/api';
+import type { CustomTab } from '@/lib/types';
 
 interface NavItem {
   label: string;
@@ -23,6 +25,26 @@ const NAV_ITEMS: NavItem[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
+  const [customTabs, setCustomTabs] = useState<CustomTab[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCustomTabs();
+  }, []);
+
+  const fetchCustomTabs = async () => {
+    try {
+      const data = await tabsAPI.getAll();
+      const sidebarTabs = (Array.isArray(data) ? data : []).filter(
+        (tab: CustomTab) => tab.location === 'sidebar'
+      );
+      setCustomTabs(sidebarTabs);
+    } catch (err) {
+      console.error('Failed to load custom tabs:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -63,6 +85,33 @@ export function Sidebar() {
               </Link>
             );
           })}
+
+          {!loading && customTabs.length > 0 && (
+            <>
+              <div className="px-4 py-3 mt-4 border-t border-slate-700">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  Custom Tabs
+                </p>
+              </div>
+              {customTabs.map((tab) => {
+                const isActive = pathname === `/custom-tabs/${tab.id}`;
+                return (
+                  <Link
+                    key={tab.id}
+                    href={`/custom-tabs/${tab.id}`}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-blue-600 text-white font-medium shadow-lg'
+                        : 'text-slate-300 hover:bg-slate-700/50'
+                    }`}
+                  >
+                    <span className="text-xl">{tab.icon}</span>
+                    <span>{tab.name}</span>
+                  </Link>
+                );
+              })}
+            </>
+          )}
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700 bg-slate-800/50">

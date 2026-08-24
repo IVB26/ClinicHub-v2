@@ -75,3 +75,19 @@ export interface BoardingProcedure {
   created_at?: string;
   updated_at?: string;
 }
+
+export type CustomTabType = 'cards' | 'form' | 'checklist';
+export type CustomTabLocation = 'sidebar' | 'top';
+
+export interface CustomTab {
+  id: number;
+  name: string;
+  subtitle?: string;
+  icon: string;
+  type: CustomTabType;
+  location: CustomTabLocation;
+  columns?: number;
+  searchBar?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}

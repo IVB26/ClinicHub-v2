@@ -65,6 +65,7 @@ export default function AdminPage() {
             {[
               { id: 'dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'users', label: 'Users', icon: '👥' },
+              { id: 'custom-tabs', label: 'Custom Tabs', icon: '📑' },
               { id: 'settings', label: 'Settings', icon: '⚙️' },
               { id: 'inbox', label: 'Inbox', icon: '📬' },
             ].map(tab => (
@@ -96,6 +97,20 @@ export default function AdminPage() {
             showCreateUser={showCreateUser}
             setShowCreateUser={setShowCreateUser}
           />
+        )}
+        {activeTab === 'custom-tabs' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Custom Tabs Manager</h2>
+            <p className="text-gray-600 mb-4">
+              Create and manage dynamic navigation tabs for staff to use.
+            </p>
+            <a
+              href="/custom-tabs"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg"
+            >
+              Open Custom Tabs Manager →
+            </a>
+          </div>
         )}
         {activeTab === 'settings' && <SettingsTab />}
         {activeTab === 'inbox' && <InboxTab />}
