@@ -12,6 +12,15 @@ const ImageGallery = dynamic(() => import('@/components/ImageGallery').then(mod 
   loading: () => <div className="w-full h-40 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center text-gray-500">Loading gallery...</div>
 });
 
+const YouTubeEmbedForm = dynamic(() => import('@/components/YouTubeEmbedForm').then(mod => ({ default: mod.YouTubeEmbedForm })), {
+  ssr: false,
+  loading: () => <div className="w-full h-40 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center text-gray-500">Loading video form...</div>
+});
+
+const YouTubePlayer = dynamic(() => import('@/components/YouTubePlayer').then(mod => ({ default: mod.YouTubePlayer })), {
+  ssr: false,
+});
+
 export default function BoardingPage() {
   const { user, isLoading } = useAuthContext();
   const [procedures, setProcedures] = useState<BoardingProcedure[]>([]);
@@ -210,6 +219,10 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
   const [overview, setOverview] = useState(procedure?.overview || '');
   const [content, setContent] = useState(procedure?.overview || '');
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [youtubeVideoId, setYoutubeVideoId] = useState('');
+  const [youtubeThumbnail, setYoutubeThumbnail] = useState('');
+  const [youtubeWidth, setYoutubeWidth] = useState('100%');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [error, setError] = useState('');
@@ -219,12 +232,18 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
       : ''
   );
 
-  // Initialize gallery images from procedure
+  // Initialize gallery images and YouTube from procedure
   useEffect(() => {
     if (procedure?.content && typeof procedure.content === 'object') {
       const contentObj = procedure.content as Record<string, unknown>;
       if (Array.isArray(contentObj.gallery_images)) {
         setGalleryImages(contentObj.gallery_images as string[]);
+      }
+      if (contentObj.youtube_url) {
+        setYoutubeUrl(contentObj.youtube_url as string);
+        setYoutubeVideoId(contentObj.youtube_video_id as string || '');
+        setYoutubeThumbnail(contentObj.youtube_thumbnail as string || '');
+        setYoutubeWidth((contentObj.youtube_width as string) || '100%');
       }
     }
   }, [procedure]);
@@ -255,10 +274,17 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
 
     setIsSubmitting(true);
     try {
-      const contentData = {
+      const contentData: Record<string, unknown> = {
         gallery_images: galleryImages,
-        ...(pdfUrl && { pdf_url: pdfUrl })
+        ...(pdfUrl && { pdf_url: pdfUrl }),
       };
+
+      if (youtubeVideoId) {
+        contentData.youtube_url = youtubeUrl;
+        contentData.youtube_video_id = youtubeVideoId;
+        contentData.youtube_thumbnail = youtubeThumbnail;
+        contentData.youtube_width = youtubeWidth;
+      }
 
       if (procedure) {
         await boardingProceduresAPI.update(procedure.id, {
@@ -435,6 +461,31 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
                   onChange={setGalleryImages}
                   disabled={isReadOnly}
                   maxImages={20}
+                />
+              )}
+            </div>
+          )}
+
+          {procedure && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Featured Video
+              </label>
+              {isReadOnly ? (
+                youtubeVideoId && (
+                  <YouTubePlayer videoId={youtubeVideoId} width={youtubeWidth} />
+                )
+              ) : (
+                <YouTubeEmbedForm
+                  videoUrl={youtubeUrl}
+                  videoId={youtubeVideoId}
+                  thumbnail={youtubeThumbnail}
+                  youtubeWidth={youtubeWidth}
+                  onUrlChange={setYoutubeUrl}
+                  onVideoIdChange={setYoutubeVideoId}
+                  onThumbnailChange={setYoutubeThumbnail}
+                  onWidthChange={setYoutubeWidth}
+                  disabled={isReadOnly}
                 />
               )}
             </div>
