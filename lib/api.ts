@@ -189,7 +189,7 @@ export const protocolsAPI = {
 };
 
 // Boarding Procedures endpoints
-export const boardingAPI = {
+export const boardingProceduresAPI = {
   getAll: (): Promise<BoardingProcedure[]> => apiCall('/api/boarding-procedures'),
   getOne: (id: number): Promise<BoardingProcedure> => apiCall(`/api/boarding-procedures/${id}`),
   create: (data: Record<string, unknown>): Promise<BoardingProcedure> =>

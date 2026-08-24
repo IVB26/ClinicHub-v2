@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuthContext } from '@/components/AuthProvider';
-import { boardingAPI } from '@/lib/api';
+import { boardingProceduresAPI } from '@/lib/api';
 import type { BoardingProcedure } from '@/lib/types';
 
 export default function BoardingPage() {
@@ -27,7 +27,7 @@ export default function BoardingPage() {
   const loadProcedures = async () => {
     setIsLoadingData(true);
     try {
-      const data = await boardingAPI.getAll();
+      const data = await boardingProceduresAPI.getAll();
       setProcedures(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load procedures');
@@ -215,14 +215,14 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
     setIsSubmitting(true);
     try {
       if (procedure) {
-        await boardingAPI.update(procedure.id, {
+        await boardingProceduresAPI.update(procedure.id, {
           title,
           category,
           overview,
           content: content ? JSON.parse(content) : null,
         });
       } else {
-        await boardingAPI.create({
+        await boardingProceduresAPI.create({
           title,
           category,
           overview,
