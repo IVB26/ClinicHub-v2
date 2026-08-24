@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuthContext } from '@/components/AuthProvider';
 import { boardingProceduresAPI } from '@/lib/api';
+import { RichTextEditor } from '@/components/RichTextEditor';
 import type { BoardingProcedure } from '@/lib/types';
 
 export default function BoardingPage() {
@@ -159,7 +160,9 @@ export default function BoardingPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">{procedure.title}</h3>
                   {procedure.overview && (
-                    <p className="text-sm text-gray-600 line-clamp-2">{procedure.overview}</p>
+                    <div className="text-sm text-gray-600 line-clamp-2 prose prose-sm max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: typeof procedure.overview === 'string' ? procedure.overview : '' }} />
+                    </div>
                   )}
                 </div>
               </div>
@@ -199,9 +202,7 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
   const [title, setTitle] = useState(procedure?.title || '');
   const [category, setCategory] = useState(procedure?.category || '');
   const [overview, setOverview] = useState(procedure?.overview || '');
-  const [content, setContent] = useState(
-    procedure?.content ? JSON.stringify(procedure.content, null, 2) : ''
-  );
+  const [content, setContent] = useState(procedure?.overview || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -218,15 +219,15 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
         await boardingProceduresAPI.update(procedure.id, {
           title,
           category,
-          overview,
-          content: content ? JSON.parse(content) : null,
+          overview: content || overview,
+          content: null,
         });
       } else {
         await boardingProceduresAPI.create({
           title,
           category,
-          overview,
-          content: content ? JSON.parse(content) : null,
+          overview: content,
+          content: null,
         });
       }
       onSave();
@@ -303,16 +304,20 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content (JSON)
+              Details & Instructions
             </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={isReadOnly}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-gray-100 font-mono text-sm"
-              placeholder='{"steps": []}'
-              rows={6}
-            />
+            {isReadOnly ? (
+              <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 prose prose-sm max-w-none">
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
+            ) : (
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Add procedure details, instructions, and guidelines..."
+                disabled={isReadOnly}
+              />
+            )}
           </div>
 
           {!isReadOnly && (
