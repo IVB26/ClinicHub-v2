@@ -152,3 +152,55 @@ export interface CallLog {
   created_at?: string;
   updated_at?: string;
 }
+
+// Banking Types
+export type PaymentMethod = 'cash' | 'card' | 'check' | 'bank_transfer' | 'other';
+export type TransactionStatus = 'recorded' | 'reconciled';
+export type ReconciliationStatus = 'pending' | 'reconciled' | 'reviewed';
+
+export interface BankingTransaction {
+  id?: number;
+  date: string;
+  paymentMethod: PaymentMethod;
+  amount: number;
+  clientName?: string;
+  service?: string;
+  reference?: string;
+  notes?: string;
+  status: TransactionStatus;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface DailyReconciliation {
+  id?: number;
+  date: string;
+  openingBalance: number;
+  expectedTotal: number;
+  actualTotal: number;
+  variance: number;
+  varianceReason?: string;
+  reconciliationNotes?: string;
+  status: ReconciliationStatus;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PaymentMethodSummary {
+  method: PaymentMethod;
+  count: number;
+  total: number;
+  percentage: number;
+}
+
+export interface DailySummary {
+  date: string;
+  totalTransactions: number;
+  totalAmount: number;
+  paymentMethods: PaymentMethodSummary[];
+  cashTotal: number;
+  cardTotal: number;
+  checkTotal: number;
+  bankTransferTotal: number;
+  otherTotal: number;
+}

@@ -1,4 +1,4 @@
-import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure, Client, Appointment, CallLog } from './types';
+import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure, Client, Appointment, CallLog, BankingTransaction, DailyReconciliation, DailySummary } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://clinichub-backend-1.onrender.com';
 
@@ -274,5 +274,54 @@ export const receptionAPI = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
+  },
+};
+
+// Banking endpoints
+export const bankingAPI = {
+  transactions: {
+    getAll: (): Promise<BankingTransaction[]> => apiCall<BankingTransaction[]>('/api/banking/transactions'),
+    getByDate: (date: string): Promise<BankingTransaction[]> =>
+      apiCall<BankingTransaction[]>(`/api/banking/transactions?date=${date}`),
+    getByDateRange: (startDate: string, endDate: string): Promise<BankingTransaction[]> =>
+      apiCall<BankingTransaction[]>(
+        `/api/banking/transactions?startDate=${startDate}&endDate=${endDate}`
+      ),
+    getOne: (id: number): Promise<BankingTransaction> =>
+      apiCall<BankingTransaction>(`/api/banking/transactions/${id}`),
+    create: (data: Record<string, unknown>): Promise<BankingTransaction> =>
+      apiCall<BankingTransaction>('/api/banking/transactions', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<BankingTransaction> =>
+      apiCall<BankingTransaction>(`/api/banking/transactions/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall<unknown>(`/api/banking/transactions/${id}`, { method: 'DELETE' }),
+  },
+  reconciliation: {
+    getByDate: (date: string): Promise<DailyReconciliation> =>
+      apiCall<DailyReconciliation>(`/api/banking/reconciliation?date=${date}`),
+    create: (data: Record<string, unknown>): Promise<DailyReconciliation> =>
+      apiCall<DailyReconciliation>('/api/banking/reconciliation', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<DailyReconciliation> =>
+      apiCall<DailyReconciliation>(`/api/banking/reconciliation/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+  },
+  reports: {
+    dailySummary: (date: string): Promise<DailySummary> =>
+      apiCall<DailySummary>(`/api/banking/reports/daily?date=${date}`),
+    weeklySummary: (startDate: string, endDate: string): Promise<DailySummary[]> =>
+      apiCall<DailySummary[]>(`/api/banking/reports/weekly?startDate=${startDate}&endDate=${endDate}`),
+    monthlySummary: (month: string): Promise<DailySummary[]> =>
+      apiCall<DailySummary[]>(`/api/banking/reports/monthly?month=${month}`),
   },
 };
