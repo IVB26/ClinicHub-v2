@@ -25,3 +25,13 @@ export interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
+
+export interface Policy {
+  id: number;
+  title: string;
+  category: string;
+  overview?: string;
+  content?: any;
+  created_at?: string;
+  updated_at?: string;
+}
