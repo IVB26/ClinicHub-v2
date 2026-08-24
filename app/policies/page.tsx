@@ -1,10 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useAuthContext } from '@/components/AuthProvider';
 import { policiesAPI } from '@/lib/api';
-import { QuillEditor } from '@/components/QuillEditor';
 import type { Policy } from '@/lib/types';
+
+const QuillEditor = dynamic(() => import('@/components/QuillEditor').then(mod => ({ default: mod.QuillEditor })), {
+  ssr: false,
+  loading: () => <div className="w-full h-80 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center text-gray-500">Loading editor...</div>
+});
 
 export default function PoliciesPage() {
   const { user, isLoading } = useAuthContext();

@@ -126,7 +126,7 @@ export function QuillEditor({
     };
 
     // Register custom handlers
-    const toolbar = quillRef.current.getModule('toolbar');
+    const toolbar = quillRef.current.getModule('toolbar') as any;
     toolbar.addHandler('image', imageHandler);
     toolbar.addHandler('video', videoHandler);
 
