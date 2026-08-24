@@ -204,7 +204,30 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
   const [overview, setOverview] = useState(procedure?.overview || '');
   const [content, setContent] = useState(procedure?.overview || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [error, setError] = useState('');
+  const [pdfUrl, setPdfUrl] = useState(
+    procedure?.content && typeof procedure.content === 'object' && (procedure.content as Record<string, unknown>).pdf_url
+      ? (procedure.content as Record<string, unknown>).pdf_url as string
+      : ''
+  );
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !procedure) return;
+
+    setIsUploadingPdf(true);
+    try {
+      const result = await boardingProceduresAPI.uploadPdf(procedure.id, file);
+      setPdfUrl(result.pdfUrl);
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to upload PDF');
+    } finally {
+      setIsUploadingPdf(false);
+      e.target.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -319,6 +342,52 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
               />
             )}
           </div>
+
+          {procedure && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attachments
+              </label>
+              {pdfUrl && (
+                <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2"
+                  >
+                    📄 {pdfUrl.split('/').pop()}
+                  </a>
+                  {!isReadOnly && (
+                    <label className="text-xs text-blue-600 hover:text-blue-700 cursor-pointer">
+                      Replace
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handlePdfUpload}
+                        disabled={isUploadingPdf}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+              {!pdfUrl && !isReadOnly && (
+                <label className="px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                  <span className="text-gray-600">
+                    {isUploadingPdf ? 'Uploading...' : '📄 Click to upload PDF'}
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handlePdfUpload}
+                    disabled={isUploadingPdf}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          )}
 
           {!isReadOnly && (
             <div className="flex gap-3 pt-4">

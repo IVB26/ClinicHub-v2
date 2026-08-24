@@ -204,4 +204,27 @@ export const boardingProceduresAPI = {
     }),
   delete: (id: number): Promise<unknown> =>
     apiCall<unknown>(`/api/boarding-procedures/${id}`, { method: 'DELETE' }),
+  uploadPdf: async (id: number, file: File): Promise<{ success: boolean; pdfUrl: string }> => {
+    const token = getToken();
+    if (!token) throw new Error('Not authenticated');
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    const response = await fetch(`${API_BASE}/api/boarding-procedures/${id}/pdf`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || `HTTP ${response.status}`);
+    }
+
+    return response.json();
+  },
 };
