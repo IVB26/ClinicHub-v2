@@ -1,10 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useAuthContext } from '@/components/AuthProvider';
 import { boardingProceduresAPI } from '@/lib/api';
 import { RichTextEditor } from '@/components/RichTextEditor';
 import type { BoardingProcedure } from '@/lib/types';
+
+const ImageGallery = dynamic(() => import('@/components/ImageGallery').then(mod => ({ default: mod.ImageGallery })), {
+  ssr: false,
+  loading: () => <div className="w-full h-40 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center text-gray-500">Loading gallery...</div>
+});
 
 export default function BoardingPage() {
   const { user, isLoading } = useAuthContext();
@@ -203,6 +209,7 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
   const [category, setCategory] = useState(procedure?.category || '');
   const [overview, setOverview] = useState(procedure?.overview || '');
   const [content, setContent] = useState(procedure?.overview || '');
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [error, setError] = useState('');
@@ -211,6 +218,16 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
       ? (procedure.content as Record<string, unknown>).pdf_url as string
       : ''
   );
+
+  // Initialize gallery images from procedure
+  useEffect(() => {
+    if (procedure?.content && typeof procedure.content === 'object') {
+      const contentObj = procedure.content as Record<string, unknown>;
+      if (Array.isArray(contentObj.gallery_images)) {
+        setGalleryImages(contentObj.gallery_images as string[]);
+      }
+    }
+  }, [procedure]);
 
   const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -238,19 +255,24 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
 
     setIsSubmitting(true);
     try {
+      const contentData = {
+        gallery_images: galleryImages,
+        ...(pdfUrl && { pdf_url: pdfUrl })
+      };
+
       if (procedure) {
         await boardingProceduresAPI.update(procedure.id, {
           title,
           category,
           overview: content || overview,
-          content: null,
+          content: contentData,
         });
       } else {
         await boardingProceduresAPI.create({
           title,
           category,
           overview: content,
-          content: null,
+          content: contentData,
         });
       }
       onSave();
@@ -385,6 +407,35 @@ function ProcedureFormModal({ procedure, onClose, onSave, isReadOnly }: Procedur
                     className="hidden"
                   />
                 </label>
+              )}
+            </div>
+          )}
+
+          {procedure && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Photo Gallery
+              </label>
+              {isReadOnly ? (
+                galleryImages.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    {galleryImages.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img}
+                        alt={`Gallery ${i + 1}`}
+                        className="w-full h-20 object-cover rounded-lg"
+                      />
+                    ))}
+                  </div>
+                )
+              ) : (
+                <ImageGallery
+                  images={galleryImages}
+                  onChange={setGalleryImages}
+                  disabled={isReadOnly}
+                  maxImages={20}
+                />
               )}
             </div>
           )}
