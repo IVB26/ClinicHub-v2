@@ -57,81 +57,81 @@ export async function apiCall<T = unknown>(
 
 // Auth endpoints
 export const authAPI = {
-  login: (username: string, password: string) =>
+  login: (username: string, password: string): Promise<AuthResponse> =>
     apiCall('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
     }),
-  logout: () => apiCall('/api/auth/logout', { method: 'POST' }),
+  logout: (): Promise<unknown> => apiCall('/api/auth/logout', { method: 'POST' }),
 };
 
 // Policies endpoints
 export const policiesAPI = {
-  getAll: () => apiCall('/api/policies'),
-  getOne: (id: string) => apiCall(`/api/policies/${id}`),
-  create: (data: Record<string, unknown>) =>
+  getAll: (): Promise<Policy[]> => apiCall('/api/policies'),
+  getOne: (id: string): Promise<Policy> => apiCall(`/api/policies/${id}`),
+  create: (data: Record<string, unknown>): Promise<Policy> =>
     apiCall('/api/policies', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: Record<string, unknown>) =>
+  update: (id: string, data: Record<string, unknown>): Promise<Policy> =>
     apiCall(`/api/policies/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  delete: (id: string) =>
+  delete: (id: string): Promise<unknown> =>
     apiCall(`/api/policies/${id}`, { method: 'DELETE' }),
 };
 
 // Boarding endpoints
 export const boardingAPI = {
-  getAll: () => apiCall('/api/boarding'),
-  getOne: (id: string) => apiCall(`/api/boarding/${id}`),
-  create: (data: Record<string, unknown>) =>
+  getAll: (): Promise<unknown> => apiCall('/api/boarding'),
+  getOne: (id: string): Promise<unknown> => apiCall(`/api/boarding/${id}`),
+  create: (data: Record<string, unknown>): Promise<unknown> =>
     apiCall('/api/boarding', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: Record<string, unknown>) =>
+  update: (id: string, data: Record<string, unknown>): Promise<unknown> =>
     apiCall(`/api/boarding/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  delete: (id: string) =>
+  delete: (id: string): Promise<unknown> =>
     apiCall(`/api/boarding/${id}`, { method: 'DELETE' }),
 };
 
 // SMS Templates endpoints
 export const smsAPI = {
-  getAll: () => apiCall('/api/sms-templates'),
-  create: (name: string, content: string) =>
+  getAll: (): Promise<unknown> => apiCall('/api/sms-templates'),
+  create: (name: string, content: string): Promise<unknown> =>
     apiCall('/api/sms-templates', {
       method: 'POST',
       body: JSON.stringify({ name, content }),
     }),
-  update: (id: string, name: string, content: string) =>
+  update: (id: string, name: string, content: string): Promise<unknown> =>
     apiCall(`/api/sms-templates/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ name, content }),
     }),
-  delete: (id: string) =>
+  delete: (id: string): Promise<unknown> =>
     apiCall(`/api/sms-templates/${id}`, { method: 'DELETE' }),
 };
 
 // Custom Tabs endpoints
 export const tabsAPI = {
-  getAll: () => apiCall('/api/custom-tabs'),
-  getOne: (id: string) => apiCall(`/api/custom-tabs/${id}`),
-  create: (data: Record<string, unknown>) =>
+  getAll: (): Promise<unknown> => apiCall('/api/custom-tabs'),
+  getOne: (id: string): Promise<unknown> => apiCall(`/api/custom-tabs/${id}`),
+  create: (data: Record<string, unknown>): Promise<unknown> =>
     apiCall('/api/custom-tabs', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: Record<string, unknown>) =>
+  update: (id: string, data: Record<string, unknown>): Promise<unknown> =>
     apiCall(`/api/custom-tabs/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  delete: (id: string) =>
+  delete: (id: string): Promise<unknown> =>
     apiCall(`/api/custom-tabs/${id}`, { method: 'DELETE' }),
 };
