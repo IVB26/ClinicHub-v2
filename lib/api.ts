@@ -1,4 +1,4 @@
-import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock } from './types';
+import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://clinichub-backend-1.onrender.com';
 
@@ -186,4 +186,22 @@ export const protocolsAPI = {
     delete: (id: number): Promise<unknown> =>
       apiCall(`/api/protocols/blocks/${id}`, { method: 'DELETE' }),
   },
+};
+
+// Boarding Procedures endpoints
+export const boardingAPI = {
+  getAll: (): Promise<BoardingProcedure[]> => apiCall('/api/boarding-procedures'),
+  getOne: (id: number): Promise<BoardingProcedure> => apiCall(`/api/boarding-procedures/${id}`),
+  create: (data: Record<string, unknown>): Promise<BoardingProcedure> =>
+    apiCall('/api/boarding-procedures', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: number, data: Record<string, unknown>): Promise<BoardingProcedure> =>
+    apiCall(`/api/boarding-procedures/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: number): Promise<unknown> =>
+    apiCall(`/api/boarding-procedures/${id}`, { method: 'DELETE' }),
 };

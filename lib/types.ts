@@ -65,3 +65,13 @@ export interface ProtocolBlock {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface BoardingProcedure {
+  id: number;
+  title: string;
+  category: string;
+  overview?: string;
+  content?: unknown;
+  created_at?: string;
+  updated_at?: string;
+}
