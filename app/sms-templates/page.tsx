@@ -3,94 +3,98 @@
 import { useEffect, useState } from 'react';
 import { useAuthContext } from '@/components/AuthProvider';
 
-interface ContentSection {
+interface SmsTemplate {
   id: number;
   name: string;
   category: string;
   content: string;
-  isActive: boolean;
+  variables: string[];
 }
 
-export default function ContentPage() {
+export default function SmsTemplatesPage() {
   const { user, isLoading } = useAuthContext();
-  const [sections, setSections] = useState<ContentSection[]>([]);
-  const [filteredSections, setFilteredSections] = useState<ContentSection[]>([]);
+  const [templates, setTemplates] = useState<SmsTemplate[]>([]);
+  const [filteredTemplates, setFilteredTemplates] = useState<SmsTemplate[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [error, setError] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedSection, setSelectedSection] = useState<ContentSection | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<SmsTemplate | null>(null);
 
   useEffect(() => {
-    loadSections();
+    loadTemplates();
   }, []);
 
   useEffect(() => {
-    filterSections();
-  }, [sections, searchTerm, selectedCategory]);
+    filterTemplates();
+  }, [templates, searchTerm, selectedCategory]);
 
-  const loadSections = async () => {
+  const loadTemplates = async () => {
     setIsLoadingData(true);
     try {
-      // For now, load from localStorage as seed data
-      const stored = localStorage.getItem('vl_content_sections');
+      const stored = localStorage.getItem('vl_sms_templates');
       if (stored) {
-        setSections(JSON.parse(stored));
+        setTemplates(JSON.parse(stored));
       } else {
-        // Load default sections
-        const defaults: ContentSection[] = [
+        const defaults: SmsTemplate[] = [
           {
             id: 1,
-            name: 'Welcome Message',
-            category: 'Home',
-            content: 'Welcome to ClinicHub - Your veterinary clinic management portal',
-            isActive: true,
+            name: 'Appointment Reminder',
+            category: 'Appointment',
+            content: 'Hi {{petName}}, reminder: your appointment with {{clinicName}} is on {{date}} at {{time}}. Reply STOP to cancel.',
+            variables: ['petName', 'clinicName', 'date', 'time'],
           },
           {
             id: 2,
-            name: 'Clinic Hours',
-            category: 'Info',
-            content: 'Monday - Friday: 9:00 AM - 5:00 PM\nSaturday: 10:00 AM - 2:00 PM\nSunday: Closed',
-            isActive: true,
+            name: 'Boarding Check-in',
+            category: 'Boarding',
+            content: '{{petName}} has checked in for boarding at {{clinicName}}. Contact {{phone}} with any questions.',
+            variables: ['petName', 'clinicName', 'phone'],
           },
           {
             id: 3,
-            name: 'Emergency Contact',
-            category: 'Info',
-            content: 'After-hours emergency: 1800-VET-HELP',
-            isActive: true,
+            name: 'Boarding Check-out',
+            category: 'Boarding',
+            content: '{{petName}} is ready for pickup! Please collect from {{clinicName}} before {{time}}.',
+            variables: ['petName', 'clinicName', 'time'],
+          },
+          {
+            id: 4,
+            name: 'Medical Alert',
+            category: 'Medical',
+            content: 'Alert: {{petName}} medication refill due. Please contact {{clinicName}} to schedule.',
+            variables: ['petName', 'clinicName'],
           },
         ];
-        setSections(defaults);
-        localStorage.setItem('vl_content_sections', JSON.stringify(defaults));
+        setTemplates(defaults);
+        localStorage.setItem('vl_sms_templates', JSON.stringify(defaults));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load sections');
+      setError(err instanceof Error ? err.message : 'Failed to load templates');
     } finally {
       setIsLoadingData(false);
     }
   };
 
-  const filterSections = () => {
-    let filtered = sections;
+  const filterTemplates = () => {
+    let filtered = templates;
 
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(s => s.category === selectedCategory);
+      filtered = filtered.filter(t => t.category === selectedCategory);
     }
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(s =>
-        s.name.toLowerCase().includes(term) || s.content.toLowerCase().includes(term)
+      filtered = filtered.filter(t =>
+        t.name.toLowerCase().includes(term) || t.content.toLowerCase().includes(term)
       );
     }
 
-    setFilteredSections(filtered);
+    setFilteredTemplates(filtered);
   };
 
-  const categories = Array.from(new Set(sections.map(s => s.category))).sort();
-
+  const categories = Array.from(new Set(templates.map(t => t.category))).sort();
   const canEdit = user?.role === 'admin' || user?.role === 'manager';
 
   if (isLoading) {
@@ -102,18 +106,18 @@ export default function ContentPage() {
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Content Manager</h1>
-          <p className="text-gray-600 mt-1">Manage dynamic content sections across the app</p>
+          <h1 className="text-3xl font-bold text-gray-900">SMS Templates</h1>
+          <p className="text-gray-600 mt-1">Pre-built SMS messages for automated communications</p>
         </div>
         {canEdit && (
           <button
             onClick={() => {
-              setSelectedSection(null);
+              setSelectedTemplate(null);
               setIsFormOpen(true);
             }}
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg"
           >
-            + New Section
+            + New Template
           </button>
         )}
       </div>
@@ -128,7 +132,7 @@ export default function ContentPage() {
       <div className="space-y-4">
         <input
           type="text"
-          placeholder="Search content..."
+          placeholder="Search templates..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
@@ -163,41 +167,46 @@ export default function ContentPage() {
         )}
       </div>
 
-      {/* Content Sections */}
+      {/* Templates Grid */}
       {isLoadingData ? (
-        <div className="text-center py-12 text-gray-600">Loading sections...</div>
-      ) : filteredSections.length === 0 ? (
+        <div className="text-center py-12 text-gray-600">Loading templates...</div>
+      ) : filteredTemplates.length === 0 ? (
         <div className="text-center py-12 text-gray-600">
-          {sections.length === 0 ? 'No content sections yet' : 'No sections match your search'}
+          {templates.length === 0 ? 'No templates yet' : 'No templates match your search'}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredSections.map(section => (
+          {filteredTemplates.map(template => (
             <div
-              key={section.id}
+              key={template.id}
               className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition"
             >
-              <div className="flex justify-between items-start gap-4 mb-3">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                      {section.category}
-                    </span>
-                    {section.isActive && (
-                      <span className="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded">
-                        Active
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900">{section.name}</h3>
-                </div>
+              <div className="mb-3">
+                <span className="text-xs font-medium bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                  {template.category}
+                </span>
               </div>
-              <p className="text-sm text-gray-600 mb-4 line-clamp-3">{section.content}</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">{template.name}</h3>
+              <p className="text-sm text-gray-600 mb-3 line-clamp-3">{template.content}</p>
+
+              {template.variables.length > 0 && (
+                <div className="mb-4 p-2 bg-blue-50 rounded">
+                  <p className="text-xs font-medium text-blue-900 mb-1">Variables:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {template.variables.map(v => (
+                      <span key={v} className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">
+                        {'{{' + v + '}}'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {canEdit && (
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
-                      setSelectedSection(section);
+                      setSelectedTemplate(template);
                       setIsFormOpen(true);
                     }}
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -216,16 +225,16 @@ export default function ContentPage() {
 
       {/* Form Modal */}
       {isFormOpen && (
-        <ContentFormModal
-          section={selectedSection}
+        <TemplateFormModal
+          template={selectedTemplate}
           onClose={() => {
             setIsFormOpen(false);
-            setSelectedSection(null);
+            setSelectedTemplate(null);
           }}
           onSave={() => {
             setIsFormOpen(false);
-            setSelectedSection(null);
-            loadSections();
+            setSelectedTemplate(null);
+            loadTemplates();
           }}
           isReadOnly={!canEdit}
         />
@@ -234,20 +243,29 @@ export default function ContentPage() {
   );
 }
 
-interface ContentFormModalProps {
-  section: ContentSection | null;
+interface TemplateFormModalProps {
+  template: SmsTemplate | null;
   onClose: () => void;
   onSave: () => void;
   isReadOnly: boolean;
 }
 
-function ContentFormModal({ section, onClose, onSave, isReadOnly }: ContentFormModalProps) {
-  const [name, setName] = useState(section?.name || '');
-  const [category, setCategory] = useState(section?.category || '');
-  const [content, setContent] = useState(section?.content || '');
-  const [isActive, setIsActive] = useState(section?.isActive ?? true);
+function TemplateFormModal({ template, onClose, onSave, isReadOnly }: TemplateFormModalProps) {
+  const [name, setName] = useState(template?.name || '');
+  const [category, setCategory] = useState(template?.category || '');
+  const [content, setContent] = useState(template?.content || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  const extractVariables = (text: string): string[] => {
+    const regex = /\{\{(\w+)\}\}/g;
+    const vars: string[] = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      vars.push(match[1]);
+    }
+    return [...new Set(vars)];
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,34 +276,37 @@ function ContentFormModal({ section, onClose, onSave, isReadOnly }: ContentFormM
 
     setIsSubmitting(true);
     try {
-      // Simulate save to localStorage
-      const stored = localStorage.getItem('vl_content_sections') || '[]';
-      let sections = JSON.parse(stored) as ContentSection[];
+      const stored = localStorage.getItem('vl_sms_templates') || '[]';
+      let templates = JSON.parse(stored) as SmsTemplate[];
+      const variables = extractVariables(content);
 
-      if (section) {
-        sections = sections.map(s =>
-          s.id === section.id ? { ...s, name, category, content, isActive } : s
+      if (template) {
+        templates = templates.map(t =>
+          t.id === template.id ? { ...t, name, category, content, variables } : t
         );
       } else {
-        const newId = Math.max(0, ...sections.map(s => s.id)) + 1;
-        sections.push({ id: newId, name, category, content, isActive });
+        const newId = Math.max(0, ...templates.map(t => t.id)) + 1;
+        templates.push({ id: newId, name, category, content, variables });
       }
 
-      localStorage.setItem('vl_content_sections', JSON.stringify(sections));
+      localStorage.setItem('vl_sms_templates', JSON.stringify(templates));
       onSave();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save section');
+      setError(err instanceof Error ? err.message : 'Failed to save template');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const variables = extractVariables(content);
+  const charCount = content.length;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-900">
-            {section ? 'Edit Section' : 'New Section'}
+            {template ? 'Edit Template' : 'New Template'}
           </h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
             ×
@@ -301,7 +322,7 @@ function ContentFormModal({ section, onClose, onSave, isReadOnly }: ContentFormM
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Section Name *
+              Template Name *
             </label>
             <input
               type="text"
@@ -309,7 +330,7 @@ function ContentFormModal({ section, onClose, onSave, isReadOnly }: ContentFormM
               onChange={(e) => setName(e.target.value)}
               disabled={isReadOnly}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100"
-              placeholder="e.g., Welcome Message"
+              placeholder="e.g., Appointment Reminder"
             />
           </div>
 
@@ -323,34 +344,41 @@ function ContentFormModal({ section, onClose, onSave, isReadOnly }: ContentFormM
               onChange={(e) => setCategory(e.target.value)}
               disabled={isReadOnly}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100"
-              placeholder="e.g., Home, Info, Announcement"
+              placeholder="e.g., Appointment, Boarding, Medical"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content
+              Message Content ({charCount}/160 characters)
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               disabled={isReadOnly}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100"
-              placeholder="Enter content..."
-              rows={8}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-gray-100 ${
+                charCount > 160 ? 'border-yellow-500' : 'border-gray-300'
+              }`}
+              placeholder="Use {{variable}} for dynamic content. Example: Hi {{name}}, your appointment is {{time}}"
+              rows={6}
             />
+            <p className="text-xs text-gray-500 mt-1">
+              SMS messages work best under 160 characters. Longer messages will be split into multiple parts.
+            </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={isActive}
-              onChange={(e) => setIsActive(e.target.checked)}
-              disabled={isReadOnly}
-              className="w-4 h-4 rounded"
-            />
-            <label className="text-sm font-medium text-gray-700">Active</label>
-          </div>
+          {variables.length > 0 && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm font-medium text-blue-900 mb-2">Variables detected:</p>
+              <div className="flex flex-wrap gap-2">
+                {variables.map(v => (
+                  <span key={v} className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded">
+                    {'{{' + v + '}}'}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {!isReadOnly && (
             <div className="flex gap-3 pt-4">
@@ -359,7 +387,7 @@ function ContentFormModal({ section, onClose, onSave, isReadOnly }: ContentFormM
                 disabled={isSubmitting}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg"
               >
-                {isSubmitting ? 'Saving...' : section ? 'Update' : 'Create'}
+                {isSubmitting ? 'Saving...' : template ? 'Update' : 'Create'}
               </button>
               <button
                 type="button"
