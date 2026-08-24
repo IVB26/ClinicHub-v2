@@ -51,7 +51,7 @@ export function ProtectedLayout({
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
           <p className="text-gray-600 mb-6">
-            You don't have permission to access this page.
+            You do not have permission to access this page.
           </p>
           <button
             onClick={() => router.push('/dashboard')}

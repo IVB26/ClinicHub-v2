@@ -18,10 +18,10 @@ interface ApiOptions extends RequestInit {
   headers?: Record<string, string>;
 }
 
-export async function apiCall(
+export async function apiCall<T = unknown>(
   endpoint: string,
   options: ApiOptions = {}
-): Promise<any> {
+): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -69,12 +69,12 @@ export const authAPI = {
 export const policiesAPI = {
   getAll: () => apiCall('/api/policies'),
   getOne: (id: string) => apiCall(`/api/policies/${id}`),
-  create: (data: any) =>
+  create: (data: Record<string, unknown>) =>
     apiCall('/api/policies', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: any) =>
+  update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/api/policies/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -87,12 +87,12 @@ export const policiesAPI = {
 export const boardingAPI = {
   getAll: () => apiCall('/api/boarding'),
   getOne: (id: string) => apiCall(`/api/boarding/${id}`),
-  create: (data: any) =>
+  create: (data: Record<string, unknown>) =>
     apiCall('/api/boarding', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: any) =>
+  update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/api/boarding/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -122,12 +122,12 @@ export const smsAPI = {
 export const tabsAPI = {
   getAll: () => apiCall('/api/custom-tabs'),
   getOne: (id: string) => apiCall(`/api/custom-tabs/${id}`),
-  create: (data: any) =>
+  create: (data: Record<string, unknown>) =>
     apiCall('/api/custom-tabs', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  update: (id: string, data: any) =>
+  update: (id: string, data: Record<string, unknown>) =>
     apiCall(`/api/custom-tabs/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
