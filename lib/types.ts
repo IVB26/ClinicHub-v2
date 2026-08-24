@@ -204,3 +204,23 @@ export interface DailySummary {
   bankTransferTotal: number;
   otherTotal: number;
 }
+
+// Operations / Daily Tasks Types
+export type TaskCategory = 'Morning Tasks' | 'Midday Tasks' | 'Afternoon/Evening' | 'Daily Tasks';
+export type TaskPriority = 'high' | 'medium' | 'low';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+export interface OperationTask {
+  id?: number;
+  title: string;
+  description?: string;
+  category: TaskCategory;
+  priority: TaskPriority;
+  assigned_to?: string;
+  due_date: string;
+  due_time?: string;
+  status: TaskStatus;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}

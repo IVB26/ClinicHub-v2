@@ -1,4 +1,4 @@
-import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure, Client, Appointment, CallLog, BankingTransaction, DailyReconciliation, DailySummary } from './types';
+import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock, BoardingProcedure, Client, Appointment, CallLog, BankingTransaction, DailyReconciliation, DailySummary, OperationTask } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://clinichub-backend-1.onrender.com';
 
@@ -323,5 +323,30 @@ export const bankingAPI = {
       apiCall<DailySummary[]>(`/api/banking/reports/weekly?startDate=${startDate}&endDate=${endDate}`),
     monthlySummary: (month: string): Promise<DailySummary[]> =>
       apiCall<DailySummary[]>(`/api/banking/reports/monthly?month=${month}`),
+  },
+};
+
+// Operations / Daily Tasks endpoints
+export const operationsAPI = {
+  tasks: {
+    getAll: (): Promise<OperationTask[]> => apiCall<OperationTask[]>('/api/operations/tasks'),
+    getByStatus: (status: string): Promise<OperationTask[]> =>
+      apiCall<OperationTask[]>(`/api/operations/tasks?status=${status}`),
+    getToday: (): Promise<OperationTask[]> =>
+      apiCall<OperationTask[]>('/api/operations/tasks?date=today'),
+    getOne: (id: number): Promise<OperationTask> =>
+      apiCall<OperationTask>(`/api/operations/tasks/${id}`),
+    create: (data: Record<string, unknown>): Promise<OperationTask> =>
+      apiCall<OperationTask>('/api/operations/tasks', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<OperationTask> =>
+      apiCall<OperationTask>(`/api/operations/tasks/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall<unknown>(`/api/operations/tasks/${id}`, { method: 'DELETE' }),
   },
 };
