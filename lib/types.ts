@@ -31,7 +31,37 @@ export interface Policy {
   title: string;
   category: string;
   overview?: string;
-  content?: any;
+  content?: unknown;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProtocolCategory {
+  id: number;
+  name: string;
+  color: string;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProtocolItem {
+  id: number;
+  category_id: number;
+  title: string;
+  description?: string;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ProtocolBlock {
+  id: number;
+  item_id: number;
+  type: string;
+  title?: string;
+  content?: unknown;
+  sort_order: number;
   created_at?: string;
   updated_at?: string;
 }

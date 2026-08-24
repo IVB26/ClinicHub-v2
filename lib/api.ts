@@ -1,4 +1,4 @@
-import type { AuthResponse, Policy } from './types';
+import type { AuthResponse, Policy, ProtocolCategory, ProtocolItem, ProtocolBlock } from './types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://clinichub-backend-1.onrender.com';
 
@@ -136,4 +136,54 @@ export const tabsAPI = {
     }),
   delete: (id: string): Promise<unknown> =>
     apiCall(`/api/custom-tabs/${id}`, { method: 'DELETE' }),
+};
+
+// Protocols endpoints
+export const protocolsAPI = {
+  categories: {
+    getAll: (): Promise<ProtocolCategory[]> => apiCall('/api/protocols/categories'),
+    create: (data: Record<string, unknown>): Promise<ProtocolCategory> =>
+      apiCall('/api/protocols/categories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<ProtocolCategory> =>
+      apiCall(`/api/protocols/categories/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall(`/api/protocols/categories/${id}`, { method: 'DELETE' }),
+  },
+  items: {
+    getByCategory: (categoryId: number): Promise<ProtocolItem[]> =>
+      apiCall(`/api/protocols/categories/${categoryId}/items`),
+    getOne: (id: number): Promise<ProtocolItem> => apiCall(`/api/protocols/items/${id}`),
+    create: (data: Record<string, unknown>): Promise<ProtocolItem> =>
+      apiCall('/api/protocols/items', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<ProtocolItem> =>
+      apiCall(`/api/protocols/items/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall(`/api/protocols/items/${id}`, { method: 'DELETE' }),
+  },
+  blocks: {
+    create: (data: Record<string, unknown>): Promise<ProtocolBlock> =>
+      apiCall('/api/protocols/blocks', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    update: (id: number, data: Record<string, unknown>): Promise<ProtocolBlock> =>
+      apiCall(`/api/protocols/blocks/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      }),
+    delete: (id: number): Promise<unknown> =>
+      apiCall(`/api/protocols/blocks/${id}`, { method: 'DELETE' }),
+  },
 };
